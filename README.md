@@ -1,39 +1,95 @@
-# noelleCoreV2
-
+# noelleCore
+[![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
 #### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+noelleCore,适用于原神计算,诺艾尔神教专用计算核心。
+通过构造自定义函数来完成原神中的技能机制
 
-#### 软件架构
-软件架构说明
+#### 快速入门
+安装
+```
+npm i noelle-core --save
+```
+使用
 
+```js
+// import { Character, CoreHas } from "noelle-core"
+// const { Character, CoreHas } = require("noelle-core")
+import Core from "noelle-core"
 
-#### 安装教程
+//->true
+Core.CoreHas("诺艾尔") 
+Core.CoreHas("螭骨剑") 
+Core.CoreHas("角斗士的终幕礼")
+//->false    
+Core.CoreHas("立本")   
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+//创建诺艾尔角色   
+const noelle = new Core.Character({ name: "诺艾尔", extar: false, level: 90, star: 6 })
+//创建木桩
+const mod = new Core.Character({ name: "木桩" })
 
-#### 使用说明
+noelle
+    //设置技能等级可以缺省默认{a:1,e:1,q:1}
+    .skill({ a: 10, q: 13, e: 13 }) 
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+    //设置武器name必填 
+    .weapon({ name: "白影剑", level: 90, extar: false, star: 5 })
 
-#### 参与贡献
+    .artifact({
+        //设置圣遗物套装名
+        artifactSet: "角斗士的终幕礼",    
+        //设置圣遗物部位                           
+        artifactType: "理之冠",
+        //主属性
+        main: { "healthExtra": 780 },      
+        //其他属性                       
+        other: {                                                  
+            "critDMG": 0.07,
+            "critRate": 0.152,
+            "atkExtra": 37,
+            "energyRechargeRate": 0.052
+        }
+    })
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+    //白影要先叠被动
+    .useA(mod)
+    .useA(mod)
+    .useA(mod)
+    .useA(mod)
+    //使用技能
+    .useQ()    
+    //如果有目标会产生伤害 
+    .useA(mod)  
 
+    //伤害列表[]
+console.log(noelle.DMG) 
+```
 
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### 词典
+```json
+{
+    "atkBase":"攻击力-白",
+    "atkExtra": "攻击力-固",
+    "atkRate": "攻击力-%",
+    "defBase":"防御力-白",
+    "defExtra": "防御力-固",
+    "defRate": "防御力-%",
+    "healthBase":"生命值-白",
+    "healthExtra": "生命值-固",
+    "healthRate": "生命值-%",
+    "critRate": "暴击率",
+    "critDMG": "暴击伤害",
+    "energyRechargeRate": "元素充能效率",
+    "elementMastery": "元素精通",
+    "elementDMGPyro": "火元素伤害加成",
+    "elementDMGHydro": "水元素伤害加成",
+    "elementDMGCryo": "冰元素伤害加成",
+    "elementDMGElectro": "雷元素伤害加成",
+    "elementDMGGeo": "岩元素伤害加成",
+    "elementDMGAnemo": "风元素伤害加成",
+    "elementDMGDendro": "草元素伤害加成",
+    "elementDMGPhysical": "物理伤害加成",
+    "cureRate": "治疗加成"
+}
+```
+增伤、带条件的面板不展示与角色面板，只会在伤害修饰器中生效
