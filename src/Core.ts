@@ -1,6 +1,5 @@
-import { ElementType, GROUP, LevelArr } from "./enum";
-
-type Keys<T> = keyof T
+import {  GROUP, LevelArr } from "./enum";
+import { Keys } from "./common/typeTool"
 
 /**原子 */
 namespace Atom {
@@ -124,10 +123,10 @@ namespace Molecule {
             }
             return this
         }
-        getElementDEF(key: ElementType) {
+        getElementDEF(key: Atom.ElementType) {
             return this[ElementPropName["DMG"][key]]
         }
-        getElementDMG(key: ElementType) {
+        getElementDMG(key: Atom.ElementType) {
             return this[ElementPropName["DMG"][key]]
         }
         setAllElementProp(type: ElementPropNameKey, val: Atom.Prop) {
@@ -308,7 +307,7 @@ namespace Polymer {
         tag: GROUP = GROUP.Tivat
         /**受到的伤害数组 */
         pain: Damage[] = []
-        constructor(data:any) {
+        constructor(data: any) {
             super(data)
 
 
@@ -362,7 +361,6 @@ namespace NoelleCore {
         delayFrame = {
             break: 0,
             must: 0,
-
         }
         delay(val: number) {
             const to = this.timeCount + val
@@ -392,7 +390,6 @@ namespace NoelleCore {
                         lastCMD = "Change"
                         break;
                     case "A":
-                        this.nowRole
                         this.delay(this.delayFrame.must)
                         break;
                     case "E":
@@ -419,4 +416,10 @@ namespace NoelleCore {
     class Character {
 
     }
+}
+namespace Core {
+    export const Atoms = Atom
+}
+class p extends Core.Atoms.Prop {
+
 }
