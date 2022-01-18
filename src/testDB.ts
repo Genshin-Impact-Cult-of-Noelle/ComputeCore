@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 17:53:28
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 19:18:24
+ * @LastEditTime: 2022-01-18 19:21:41
  * @FilePath: \noelle-core-v2\src\testDB.ts
  */
 
@@ -45,7 +45,7 @@ const k: SkillData = {
             return {
                 delay:{
                     must:120,
-                    last:110 
+                    last:110  
                 }
             }
         }
