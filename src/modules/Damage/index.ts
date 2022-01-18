@@ -1,21 +1,33 @@
 /*
  * @Date: 2022-01-17 18:23:27
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-17 19:12:47
+ * @LastEditTime: 2022-01-18 16:46:51
  * @FilePath: \noelle-core-v2\src\modules\Damage\index.ts
  */
 
 import { Atom } from "../Atom";
 import { CharacterModel } from "../Character";
+import { ControlModel } from "../Control";
 import { SkillModel } from "../Skill";
 
-export namespace DamageModel{
+export namespace DamageModel {
+    type ResultProp = {
+        avg: number,
+        max: number,
+        min: number,
+    }
+    type DamageResult = {
+        computeResult: ResultProp
+        computeStr: string,
+        other: DamageResult[],
+    } & ResultProp
+    type DamageModifyItem = "DMGRate" | "DMGExtra" | "RateRate"
     export type DamageType = "ATKNORMAL" | "ATKBASH" | "ATKDOWN" | "ESKILL" | "QSKILL"
     export class Damage {
         /**来源角色 */
-        from: CharacterModel.Character;
+        from: ControlModel.Control
         /**目标角色 */
-        to: CharacterModel.Character;
+        to: ControlModel.Control;
         /**来源固化 */
         fromRole: Atom.ObjectBase;
         /**伤害目标 */
@@ -32,14 +44,29 @@ export namespace DamageModel{
         DMGType: DamageType | undefined = undefined
         /**伤害标签 */
         tag: string
-        constructor(from: CharacterModel.Character, skill: SkillModel.Skill<Damage|CharacterModel.Character>, to: CharacterModel.Character) {
+        /** */
+        constructor(from: ControlModel.Control, skill: SkillModel.Skill<Damage | CharacterModel.Character>, to: ControlModel.Control) {
             this.ID = skill.ID
             this.from = from
             this.to = to
             this.fromRole = from.Last
             this.toRole = to.Last
-            this.tag = skill.label
+            this.tag = skill.name
         }
-
+        get Last() {
+            const result: DamageResult = {
+                max: 0,
+                avg: 0,
+                min: 0,
+                other: [],
+                computeStr: "",
+                computeResult: {
+                    max: 0,
+                    avg: 0,
+                    min: 0,
+                }
+            }
+            return result
+        }
     }
 }

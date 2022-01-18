@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:39:11
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-17 18:50:03
+ * @LastEditTime: 2022-01-18 18:31:30
  * @FilePath: \noelle-core-v2\src\modules\Buff\index.ts
  */
 import { Atom} from "../Atom"
@@ -13,17 +13,22 @@ export namespace BuffModel {
     export type Type = "teamBase" | "teamNow" | "object"
 
     export class Control {
-        role: Molecule.CharacterBase
         teamBase: Buff[] = []
         teamNow: Buff[] = []
         object: Buff[] = []
-        constructor(role: Molecule.CharacterBase) {
-            this.role = role
+        constructor() {
+
         }
         nextFrame(frame: number) {
             this.object = this.object.filter(item => { return !!item.nextFrame(frame) })
             this.teamBase = this.teamBase.filter(item => { return !!item.nextFrame(frame) })
             this.teamNow = this.teamNow.filter(item => { return !!item.nextFrame(frame) })
+        }
+        pushBuff(buff:Buff){
+            this[buff.type].push(buff)
+        }
+        findBuff(ID:symbol){
+            
         }
 
     }
@@ -33,9 +38,9 @@ export namespace BuffModel {
         /**Buff类型 */
         type: Type
         /**激活时间 */
-        private StartFrame: number = 0
+        StartFrame: number = 0
         /**结束时间 */
-        private DeadTime: number = 0
+        DeadTime: number = 0
         /**属性加成 */
         target: Atom.ObjectBase = new Atom.ObjectBase()
         /**
@@ -69,9 +74,11 @@ export namespace BuffModel {
             }
 
         }
-        constructor(target: Molecule.CharacterBase, type: BuffModel.Type, init = (buff: Buff) => { }) {
-            this.target = target
+        constructor(tag:string, type: BuffModel.Type,startTime:number,deadTime:number, init = (buff: Buff) => { }) {
+            this.tag=tag
             this.type = type
+            this.StartFrame=startTime,
+            this.DeadTime=deadTime
             init(this)
         }
     }

@@ -1,11 +1,10 @@
 /*
  * @Date: 2022-01-17 17:36:44
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-17 18:20:55
+ * @LastEditTime: 2022-01-18 17:44:16
  * @FilePath: \noelle-core-v2\src\modules\Atom\index.ts
  */
-import { Keys } from "../../common/typeTool";
-import { GROUP, LevelArr } from "../../enum";
+import { Common } from "../../common/typeTool";
 import { BuffModel } from "../Buff";
 export namespace Atom {
     type PropTypeNotNull<T = number> = {
@@ -39,38 +38,33 @@ export namespace Atom {
         /**属性相加 */
         add(prop: Prop) {
             for (const key in this.content) {
-                const asKey = <Keys<PropType>>key
-                this[asKey] = prop[asKey]
+                const asKey = <Common.Keys<PropType>>key
+                this[asKey] += prop[asKey]
                 this.content[asKey].push(...prop.content[asKey])
             }
+            return this
+        }
+        push(label:string,val:number,type:Common.Keys<PropType>){
+            this[type]+=val
+            this.content[type].push({
+                label,
+                val
+            })
+            return this
         }
     }
-    export type ElementType = "Pyro" | "Hydro" | "Cryo" | "Electro" | "Geo" | "Anemo" | "Dendro" | "Physical"
-    enum ElementDEF {
-        Pyro = "elementDEFPyro",
-        Hydro = "elementDEFHydro",
-        Cryo = "elementDEFCryo",
-        Electro = "elementDEFElectro",
-        Geo = "elementDEFGeo",
-        Anemo = "elementDEFAnemo",
-        Dendro = "elementDEFDendro",
-        Physical = "elementDEFPhysical",
-    }
-    enum ElementDMG {
-        Pyro = "elementDMGPyro",
-        Hydro = "elementDMGHydro",
-        Cryo = "elementDMGCryo",
-        Electro = "elementDMGElectro",
-        Geo = "elementDMGGeo",
-        Anemo = "elementDMGAnemo",
-        Dendro = "elementDMGDendro",
-        Physical = "elementDMGPhysical",
-    }
+
+
+    //   type ElementType = "Pyro" | "Hydro" | "Cryo" | "Electro" | "Geo" | "Anemo" | "Dendro" | "Physical"
+    export type ElementType<PreStr extends string = "", LastStr extends string = ""> = Common.LinkStr<PreStr, LastStr, ["Pyro", "Hydro", "Cryo", "Electro", "Geo", "Anemo", "Dendro", "Physical"]>
+    type ElementDEF = ElementType<"elementDEF">
+    type ElementDMG = ElementType<"elementDMG">
+    export type ArtifactPropUserName<T extends string[] = ["atk", "def", "health"]> =
+        Common.LinkStr<"", "Rate", T> |
+        Common.LinkStr<"", "Extra", T> |
+        ElementDMG | "critRate" | "critDamage"
+
     type ElementPropNameKey = "DEF" | "DMG"
-    const ElementPropName = {
-        DEF: ElementDEF,
-        DMG: ElementDMG
-    }
     export class ObjectProps {
         /**攻击力 */
         atk: Prop = new Prop()
@@ -120,32 +114,31 @@ export namespace Atom {
         constructor() {
             super()
         }
-        private addKey(key: Keys<ObjectProps>, Other: ObjectBase) {
+        private addKey(key: Common.Keys<ObjectProps>, Other: ObjectBase) {
             const [ThisAtom, OtherAtom] = [this[key], Other[key]]
             ThisAtom.add(OtherAtom)
         }
         add(other: ObjectBase) {
             for (const key in ObjectProps.prototype) {
-                this.addKey(key as keyof ObjectProps, other)
+                if (other[key]) {
+                    this.addKey(key as keyof ObjectProps, other)
+                }
+
             }
             return this
         }
-        getElementDEF(key: Atom.ElementType) {
-            return this[ElementPropName["DMG"][key]]
+        getElementDEF(key: ElementDEF) {
+
+            return this[key]
         }
-        getElementDMG(key: Atom.ElementType) {
-            return this[ElementPropName["DMG"][key]]
+        getElementDMG(key: ElementDMG) {
+            return this[key]
         }
         setAllElementProp(type: ElementPropNameKey, val: Prop) {
-            for (let key in ElementPropName[type]) {
-                this[ElementPropName[type][key] as ElementDMG] = val
-            }
             return this
         }
         addAllElementProp(type: ElementPropNameKey, val: Prop) {
-            for (let key in ElementPropName[type]) {
-                this[ElementPropName[type][key] as ElementDMG].add(val)
-            }
+
             return this
         }
     }

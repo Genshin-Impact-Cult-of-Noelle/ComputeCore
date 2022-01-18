@@ -1,21 +1,89 @@
 /*
  * @Date: 2022-01-17 18:24:58
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-17 19:10:33
+ * @LastEditTime: 2022-01-18 18:14:40
  * @FilePath: \noelle-core-v2\src\modules\Skill\index.ts
  */
 import { Molecule } from "../Molecule"
 import { CharacterModel } from "../Character"
-export namespace SkillModel{
-    export type Data<FncTarget> = {
-        label:string,
-        fnc:(from:FncTarget , to: FncTarget, lv?: number) =>void
+import { BuffModel } from "../Buff"
+import { DamageModel } from "../Damage"
+export namespace SkillModel {
+    type SkillOutput = {
+        delay?: {
+            must: number,
+            last: number
+        }
+        result?: BuffModel.Buff | DamageModel.Damage
     }
-    export class Skill<Target> {
+    type SkillFnc<FncTarget> = {
+        (from: FncTarget, to: FncTarget,frameTime:number, lv?: number): SkillOutput
+    }
+    export type SkillData<FncTarget> = {
+        /**技能名 */
+        name: string,
+        /**技能函数 */
+        fnc: SkillFnc<FncTarget>
+    }
+    export class Skill<Target> implements SkillData<Target> {
         ID: symbol = Symbol()
-        label: string = "未知技能"
-        fnc(from:Target , to: Target, lv?: number) { return }
-        constructor(data: Data<Target>) {
+        name: string = "未知技能"
+        fnc: SkillFnc<Target> = (f, t, l?) => { return {} }
+        constructor(data?: SkillData<Target>) {
+
+        }
+    }
+    type CharacterSkillData<Target> = {
+        /**普通攻击 */
+        normalAttack: SkillData<Target>
+        /**元素战技 */
+        elementSkill: SkillData<Target>
+        /**元素爆发 */
+        elementBurst: SkillData<Target>
+    }
+    /**角色技能模组 */
+    export class CharacterSkillControl<Target> implements CharacterSkillData<Target>{
+        normalAttack: Skill<Target> = new Skill()
+        elementSkill: Skill<Target> = new Skill()
+        elementBurst: Skill<Target> = new Skill()
+        constructor(data?: CharacterSkillData<Target>) {
+            if (data) {
+                const { normalAttack, elementSkill, elementBurst } = data
+                this.normalAttack = new Skill<Target>(normalAttack)
+                this.elementSkill = new Skill<Target>(elementSkill)
+                this.elementBurst = new Skill<Target>(elementBurst)
+            } 
+        }
+        Atk() { }
+        AtkCharged() { }
+        AtkJumpLow() { }
+        AtkJumpHigh() { }
+        Skill() { }
+        SkillLong() { }
+        Burst() { }
+    }
+    /**装备技能模组 */
+    export class EquipSkill<T>{
+        skillList: Skill<T>[] = []
+        constructor() {
+        }
+        clear() {
+            this.skillList = []
+        }
+        push(skill: Skill<T>) {
+            this.skillList.push(skill)
+        }
+        getBuff(target: T) {
+            const SkillResult = this.skillList.map(item => {
+                return item.fnc(target, target,0)
+            })
+            const result: BuffModel.Buff[] = []
+            SkillResult.map(item => {
+                if (item.result instanceof BuffModel.Buff) {
+                    result.push(item.result)
+                }
+            })
+            return result
 
         }
     }
