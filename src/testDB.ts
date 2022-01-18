@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 17:53:28
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 18:56:40
+ * @LastEditTime: 2022-01-18 19:18:24
  * @FilePath: \noelle-core-v2\src\testDB.ts
  */
 
@@ -27,7 +27,6 @@ const x: CharacterData = {
     weaponType: "claymore"
 }
 const skillLabel = "大扫除"
-
 const k: SkillData = {
     name: skillLabel,
     fnc: (() => {
@@ -46,7 +45,7 @@ const k: SkillData = {
             return {
                 delay:{
                     must:120,
-                    last:110
+                    last:110 
                 }
             }
         }
