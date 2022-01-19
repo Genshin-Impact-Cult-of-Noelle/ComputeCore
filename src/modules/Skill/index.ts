@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 18:24:58
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 18:14:40
+ * @LastEditTime: 2022-01-19 16:34:08
  * @FilePath: \noelle-core-v2\src\modules\Skill\index.ts
  */
 import { Molecule } from "../Molecule"
@@ -14,10 +14,10 @@ export namespace SkillModel {
             must: number,
             last: number
         }
-        result?: BuffModel.Buff | DamageModel.Damage
+        result?: DamageModel.Damage
     }
     type SkillFnc<FncTarget> = {
-        (from: FncTarget, to: FncTarget,frameTime:number, lv?: number): SkillOutput
+        (from: FncTarget, to: FncTarget, frameTime: number, lv?: number): SkillOutput
     }
     export type SkillData<FncTarget> = {
         /**技能名 */
@@ -30,10 +30,13 @@ export namespace SkillModel {
         name: string = "未知技能"
         fnc: SkillFnc<Target> = (f, t, l?) => { return {} }
         constructor(data?: SkillData<Target>) {
-
+            if (data) {
+                this.name = data.name
+                this.fnc = data.fnc
+            }
         }
     }
-    type CharacterSkillData<Target> = {
+    export type CharacterSkillData<Target> = {
         /**普通攻击 */
         normalAttack: SkillData<Target>
         /**元素战技 */
@@ -52,7 +55,7 @@ export namespace SkillModel {
                 this.normalAttack = new Skill<Target>(normalAttack)
                 this.elementSkill = new Skill<Target>(elementSkill)
                 this.elementBurst = new Skill<Target>(elementBurst)
-            } 
+            }
         }
         Atk() { }
         AtkCharged() { }
@@ -60,22 +63,27 @@ export namespace SkillModel {
         AtkJumpHigh() { }
         Skill() { }
         SkillLong() { }
-        Burst() { }
+        Burst(from:Target, target:Target,frameTime:number,lv:number) {
+            return this.elementBurst.fnc(from,target,frameTime,lv)
+         }
+    }
+    type EquipSkillObject<T> = {
+        [key: symbol]: Skill<T>
     }
     /**装备技能模组 */
     export class EquipSkill<T>{
-        skillList: Skill<T>[] = []
+        skillList: EquipSkillObject<T> = {}
         constructor() {
         }
         clear() {
-            this.skillList = []
+            this.skillList = {}
         }
         push(skill: Skill<T>) {
-            this.skillList.push(skill)
+            this.skillList[skill.ID] = skill
         }
         getBuff(target: T) {
-            const SkillResult = this.skillList.map(item => {
-                return item.fnc(target, target,0)
+            const SkillResult = Object.getOwnPropertySymbols(this.skillList).map(item => {
+                return this.skillList[item].fnc(target, target, 0)
             })
             const result: BuffModel.Buff[] = []
             SkillResult.map(item => {
@@ -84,7 +92,6 @@ export namespace SkillModel {
                 }
             })
             return result
-
         }
     }
 }
