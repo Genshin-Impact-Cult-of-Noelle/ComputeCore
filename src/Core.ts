@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-16 09:18:52
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 09:26:03
+ * @LastEditTime: 2022-01-19 16:26:55
  * @FilePath: \noelle-core-v2\src\Core.ts
  */
 import { ArtifactModel } from "./modules/Artifact"
@@ -17,11 +17,11 @@ export namespace Noelle{
         /**技能数据类型 */
         export type Skill = SkillModel.SkillData<ControlModel.Control>
         /**角色数据类型 */
-        export type Character = CharacterModel.DataType
+        export type Character = ControlModel.CharacterRoleData
         /**武器数据类型 */
-        export type Weapon = WeaponModel.DataType
+        export type Weapon = ControlModel.WeaponData
         /**圣遗物套装数据类型 */
-        export type ArtifactSet = ArtifactModel.SetDataType<ControlModel.Control>
+        export type ArtifactSet = ControlModel.ArtifactData
         
     }
     export namespace Class{
@@ -32,12 +32,17 @@ export namespace Noelle{
     }
     export namespace Tools{
         /**
-         * 取得总帧数
-         * @param time 秒
+         * 生成延时配置对象
+         * @param start 起始帧
+         * @param time 持续时间
          * @returns 
          */
-        export function getFrame(time:number){
-            return Math.floor(time*60)
+        export function getFrame(start:number, time:number){
+            const end = start +Math.floor(time*60)
+            return {
+                start,
+                end
+            } 
         }
     }
 }
@@ -48,3 +53,14 @@ export type ArtifactSetData = Noelle.Type.ArtifactSet
 export class Prop extends Noelle.Class.Prop{}
 export class Buff extends  Noelle.Class.Buff{}
 export const getFrame = Noelle.Tools.getFrame
+
+
+import {诺艾尔}  from "./testDB"
+ControlModel.Control.loadData(诺艾尔)
+const x= new ControlModel.Control("诺艾尔")
+x.Q(x,1)
+x.Q(x,2)
+x.Q(x,903)
+console.log(x.Last.atk);
+
+
