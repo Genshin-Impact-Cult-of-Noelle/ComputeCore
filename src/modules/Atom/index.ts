@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:36:44
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 17:44:16
+ * @LastEditTime: 2022-01-19 14:47:00
  * @FilePath: \noelle-core-v2\src\modules\Atom\index.ts
  */
 import { Common } from "../../common/typeTool";
@@ -44,8 +44,8 @@ export namespace Atom {
             }
             return this
         }
-        push(label:string,val:number,type:Common.Keys<PropType>){
-            this[type]+=val
+        push(label: string, val: number, type: Common.Keys<PropType>) {
+            this[type] += val
             this.content[type].push({
                 label,
                 val
@@ -119,11 +119,10 @@ export namespace Atom {
             ThisAtom.add(OtherAtom)
         }
         add(other: ObjectBase) {
-            for (const key in ObjectProps.prototype) {
-                if (other[key]) {
+            for (const key of Object.keys(this)) {                
+                if (other[key] instanceof Atom.Prop) {
                     this.addKey(key as keyof ObjectProps, other)
                 }
-
             }
             return this
         }
