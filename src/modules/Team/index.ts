@@ -1,17 +1,18 @@
 /*
  * @Date: 2022-01-18 10:16:56
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 17:12:18
+ * @LastEditTime: 2022-01-19 17:07:24
  * @FilePath: \noelle-core-v2\src\modules\Team\index.ts
  */
 
+import { Buff } from "../../Core";
 import { Atom } from "../Atom";
 import { BuffModel } from "../Buff";
-import { CharacterModel } from "../Character";
+import { ControlModel } from "../Control";
 
 export namespace TeamModel {
     type CharacterMap = {
-        [key: symbol]: CharacterModel.Character
+        [key: symbol]: ControlModel.Control
     }
     /**队伍公用数据 */
     type TeamData = {
@@ -22,14 +23,46 @@ export namespace TeamModel {
     }
     export class Team {
         private _characterList: CharacterMap = {};
+        nowCharacter: symbol = Symbol();
         /**添加角色 */
-        append(character: CharacterModel.Character) {
-            this._characterList[character.ID] = character
+        append(control: ControlModel.Control) {
+            this._characterList[control.ID] = control
         }
-        /** */
-        remove(character: CharacterModel.Character) {
-            delete this._characterList[character.ID]
+        getTeamBase() {
         }
+        /**移除角色 */
+        remove(control: ControlModel.Control) {
+            delete this._characterList[control.ID]
+        }
+        /**切换驻场角色 */
+        change(control: ControlModel.Control) {
+            this.nowCharacter = control.ID
+        }
+        /**是否在队伍中 */
+        inTeam(key: symbol) {
+            return !!this._characterList[key]
+        }
+        /**
+         * 全局buff数组
+         */
+        get Buffbase() {
+            const arr: Buff[] = [this.ElementBuff]
+            Object.getOwnPropertySymbols(this._characterList).map(item => {
+              arr.push(...this._characterList[item].getBuffArr("teamBase"))  
+            })
+            return arr
+        }
+        /**
+         * 驻场buff数组
+         */
+        get BuffNow(){
+            const arr: Buff[] = []
+            Object.getOwnPropertySymbols(this._characterList).map(item => {
+                this._characterList[item].getBuffArr("teamBase")
+            })
+            return arr
+        }
+        /**公用数据 */
         get data() {
             const data: TeamData = {
                 elementCount: {}
@@ -37,16 +70,16 @@ export namespace TeamModel {
             const characterList = this._characterList
             Object.getOwnPropertySymbols(this._characterList).map(item => {
                 const elementType = characterList[item].elementType
-                if(data.elementCount[elementType]){
+                if (data.elementCount[elementType]) {
                     data.elementCount[elementType]!++
-                }else{
+                } else {
                     data.elementCount[elementType] = 0
                 }
             })
             return data
         }
         private get ElementBuff() {
-            const buff = new BuffModel.Buff("元素共鸣", "teamBase", 0, -1)
+            const buff = new BuffModel.Buff("元素共鸣", "teamBase", "never")
             const { elementCount: ElementCount } = this.data
             if ((ElementCount["Geo"] || 0) > 1) {
                 // buff.commandFnc = (f, c, t) => {
