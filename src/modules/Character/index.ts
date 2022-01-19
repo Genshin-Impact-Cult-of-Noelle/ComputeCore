@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:40:29
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 16:57:03
+ * @LastEditTime: 2022-01-19 16:58:56
  * @FilePath: \noelle-core-v2\src\modules\Character\index.ts
  */
 
@@ -33,6 +33,7 @@ export namespace CharacterModel {
         weaponType: WeaponModel.Type
     } & Molecule.BaseObjectdata
     export class Character extends Molecule.CharacterBase {
+        /**神之眼属性 */
         elementType: Atom.ElementType
         /**当前生命值 */
         healthNow = 0;
@@ -67,8 +68,8 @@ export namespace CharacterModel {
         setSkillLevel(obj: Partial<SkillLevelObj>) {
             const { a, e, q } = obj
             a && (this.skillLevel.a = a)
-            e && (this.skillLevel.a = e)
-            q && (this.skillLevel.a = q)
+            e && (this.skillLevel.e = e)
+            q && (this.skillLevel.q = q)
         }
 
     }
