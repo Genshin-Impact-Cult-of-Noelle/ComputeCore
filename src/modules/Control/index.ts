@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 17:01:30
+ * @LastEditTime: 2022-01-19 18:45:42
  * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
  */
 
@@ -73,8 +73,15 @@ export namespace ControlModel {
         }
         get Last() {
             const base = new Atom.ObjectBase()
-            base.add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.character.core.Last)
+            base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps([...this.getBuffArr("object"),...this.team.Buffbase]))
 
+            return base
+        }
+        getBuffProps(buffArr:BuffModel.Buff[]){
+            const base = new Atom.ObjectBase()
+            buffArr.map(item=>{
+                base.add(item.target)
+            })
             return base
         }
         getBuffArr(type: BuffModel.Type) {
@@ -163,6 +170,25 @@ export namespace ControlModel {
         }
         A(to: Control, frameTime: number) {
             this.character.skill.Burst(this, to, frameTime, 1)
+        }
+        setArtifact(data: ArtifactModel.DataType){
+            this.artifact.core.setArtifact(data)
+            return this
+        }
+        /**
+         * 加载已经存入缓存区的武器
+         * @param name 武器名
+         * @returns 
+         */
+        loadWeapon(name:string){
+            const key = Symbol.for(name)
+            const weaponData =   Control.WeaponData[key]
+            const weaponSkill =   Control.SkillData[key]
+            if(weaponData&&weaponSkill){
+                this.weapon.core=new WeaponModel.Weapon(weaponData)
+                this.weapon.skill=new SkillModel.EquipSkill()
+            }
+            return this
         }
     }
 }
