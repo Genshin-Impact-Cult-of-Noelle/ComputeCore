@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 18:21:27
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 16:31:35
+ * @LastEditTime: 2022-01-19 11:27:50
  * @FilePath: \noelle-core-v2\src\modules\Molecule\index.ts
  */
 
@@ -17,9 +17,9 @@ export namespace Molecule {
     export type BaseObjectdata = {
         name: string
         levelData: LevelData
-        star:Star
+        star: Star
     }
-    type Star = 1|2|3|4|5 
+    type Star = 1 | 2 | 3 | 4 | 5
     class Base extends Atom.ObjectBase {
         private _level: number = 0;
         /**名称 */
@@ -27,16 +27,17 @@ export namespace Molecule {
         /**等级数据 */
         levelData: LevelData;
         /**星级 */
-        star:Star=1
+        star: Star = 1
         constructor(data: BaseObjectdata) {
             super()
             this.name = data.name
             this.levelData = data.levelData
-            this.level = 1
-            this.star=data.star
+            this.level = 13
+            this.star = data.star
+            this.ID = Symbol.for(this.name)
         }
         get Last() {
-            const tempBase = new Atom.ObjectBase().add(this)
+            const tempBase = new Atom.ObjectBase().add(this)            
             return tempBase
         }
         set level(val: number) {
@@ -45,13 +46,15 @@ export namespace Molecule {
                 const asKey = <Common.Keys<LevelData>>key
                 const prop = this.levelData[asKey]
                 if (prop) {
+                    const newProp = new Atom.Prop()
                     for (const type in prop) {
                         const asType = <Common.Keys<Atom.PropType>>type
                         const propData = prop[asType]
                         if (propData) {
-                            this[asKey][asType] = propData[val]
+                            newProp.push(this.name, propData[val], asType)
                         }
                     }
+                    this[asKey] = newProp
                 }
             }
         }
