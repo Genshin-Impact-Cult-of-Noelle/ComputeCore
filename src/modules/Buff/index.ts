@@ -1,38 +1,74 @@
 /*
  * @Date: 2022-01-17 17:39:11
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 18:31:30
+ * @LastEditTime: 2022-01-19 16:55:18
  * @FilePath: \noelle-core-v2\src\modules\Buff\index.ts
  */
-import { Atom} from "../Atom"
+import { Atom } from "../Atom"
 import { DamageModel } from "../Damage"
 import { Molecule } from "../Molecule"
 
 export namespace BuffModel {
     export type ModifyCommand = ""
     export type Type = "teamBase" | "teamNow" | "object"
-
+    type BuffObject = {
+        [key: symbol]: Buff
+    }
+    type OutTime={
+        start:number,
+        end:number,
+    } | "never"
     export class Control {
-        teamBase: Buff[] = []
-        teamNow: Buff[] = []
-        object: Buff[] = []
+        teamBase: BuffObject = {}
+        teamNow: BuffObject = {}
+        object: BuffObject = {}
         constructor() {
 
         }
         nextFrame(frame: number) {
-            this.object = this.object.filter(item => { return !!item.nextFrame(frame) })
-            this.teamBase = this.teamBase.filter(item => { return !!item.nextFrame(frame) })
-            this.teamNow = this.teamNow.filter(item => { return !!item.nextFrame(frame) })
+            this.partNext(this.object, frame)
+            this.partNext(this.teamBase, frame)
+            this.partNext(this.teamNow, frame)
         }
-        pushBuff(buff:Buff){
-            this[buff.type].push(buff)
+        private partNext(part: BuffObject, frame: number) {
+            Object.getOwnPropertySymbols(part).map(item => {
+                if (!part[item].nextFrame(frame)) {
+                    delete part[item]
+                }
+            })
         }
-        findBuff(ID:symbol){
+        private partBuffList(part: BuffObject) {
+            const base:Buff[] = []
+            Object.getOwnPropertySymbols(part).map(item => {
+                base.push(part[item])
+            })
+            return base
+        }
+        pushBuff(buff: Buff) {
+            this[buff.type][buff.ID] = buff
+
+        }
+        findBuff(tag: string) {
+            const ID = Symbol.for(tag)
+            const [objectBuff,teamBaseBuff,teamNowBuff] = [this.object[ID],this.teamBase[ID],this.object[ID]]
+            return {
+                objectBuff,teamBaseBuff,teamNowBuff
+            }
             
+        }
+        get Object() {
+            return this.partBuffList(this.object)
+        }
+        get Now() {
+            return this.partBuffList(this.teamNow)
+        }
+        get Team(){
+            return this.partBuffList(this.teamBase)
         }
 
     }
     export class Buff {
+        ID: symbol = Symbol()
         /**标签 */
         tag: string = "未知来源"
         /**Buff类型 */
@@ -45,11 +81,11 @@ export namespace BuffModel {
         target: Atom.ObjectBase = new Atom.ObjectBase()
         /**
          * 
-         * @param c 指令
+         * @param cmd 指令
          * @param DMG 伤害实例
          * @returns 
          */
-        modifyDMG(c: ModifyCommand, DMG?: DamageModel.Damage) {
+        modifyDMG(cmd: ModifyCommand, DMG?: DamageModel.Damage) {
             return DMG
         }
         /**
@@ -74,11 +110,18 @@ export namespace BuffModel {
             }
 
         }
-        constructor(tag:string, type: BuffModel.Type,startTime:number,deadTime:number, init = (buff: Buff) => { }) {
-            this.tag=tag
+        constructor(tag: string, type: BuffModel.Type, outTime:OutTime, init = (buff: Buff) => { }) {
+            this.ID = Symbol.for(tag)
+            this.tag = tag
             this.type = type
-            this.StartFrame=startTime,
-            this.DeadTime=deadTime
+            if(outTime==="never"){
+                this.StartFrame = 0
+                this.DeadTime = -1
+            }else{
+                this.StartFrame = outTime.start
+                this.DeadTime =  outTime.end
+            }
+            
             init(this)
         }
     }
