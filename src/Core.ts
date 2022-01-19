@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-16 09:18:52
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 18:23:43
+ * @LastEditTime: 2022-01-19 09:26:03
  * @FilePath: \noelle-core-v2\src\Core.ts
  */
 import { ArtifactModel } from "./modules/Artifact"
@@ -14,17 +14,28 @@ import { WeaponModel } from "./modules/Weapon"
 export const Core = ControlModel
 export namespace Noelle{
     export namespace Type {
+        /**技能数据类型 */
         export type Skill = SkillModel.SkillData<ControlModel.Control>
+        /**角色数据类型 */
         export type Character = CharacterModel.DataType
+        /**武器数据类型 */
         export type Weapon = WeaponModel.DataType
+        /**圣遗物套装数据类型 */
         export type ArtifactSet = ArtifactModel.SetDataType<ControlModel.Control>
         
     }
     export namespace Class{
+        /**BUFF类 */
         export class Buff extends BuffModel.Buff{}
+        /**原子属性 */
         export class Prop extends Atom.Prop{}
     }
     export namespace Tools{
+        /**
+         * 取得总帧数
+         * @param time 秒
+         * @returns 
+         */
         export function getFrame(time:number){
             return Math.floor(time*60)
         }
