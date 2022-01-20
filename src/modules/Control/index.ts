@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 18:45:42
+ * @LastEditTime: 2022-01-20 16:01:48
  * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
  */
 
@@ -9,17 +9,19 @@ import { ArtifactModel } from "../Artifact";
 import { Atom } from "../Atom";
 import { BuffModel } from "../Buff";
 import { CharacterModel } from "../Character";
+import { DamageModel } from "../Damage";
 import { Molecule } from "../Molecule";
 import { SkillModel } from "../Skill";
 import { TeamModel } from "../Team";
 import { WeaponModel } from "../Weapon";
 
 export namespace ControlModel {
+    type LoadDataPart = ArtifactData|CharacterRoleData|WeaponData
     type DataBase<T> = {
         [key: symbol]: T
     }
     type Part<C, S> = {
-        buff: BuffModel.Control
+        buff: BuffModel.Control<Control>
         core: C,
         skill: S
     }
@@ -45,39 +47,74 @@ export namespace ControlModel {
         private static ArtifactSetData: DataBase<ArtifactModel.DataType> = {}
         private static SkillData: DataBase<SkillModel.SkillData<Control>> = {}
         private static CharacterSkillData: DataBase<SkillModel.CharacterSkillData<Control>> = {}
-        get ID(){
+        get ID() {
             return this.character.core.ID
         }
-        get elementType(){
+        get elementType() {
             return this.character.core.elementType
+        }
+        get tag() {
+            return this.character.core.tag
+        }
+        private get isNow() {
+            return this.ID === this.team.nowCharacter
+        }
+        private get AllBuff() {
+            return [...this.BaseBuff, ...this.team.BuffNow]
+        }
+        private get BaseBuff() {
+            return [...this.getBuffArr("object"), ...this.team.Buffbase]
+        }
+        private modifyDMG(DMG: DamageModel.Damage<Control>, frameTime: number, CMD: BuffModel.ModifyCommand, buffList: BuffModel.Buff<Control> []) {
+            buffList.map(item => {
+                item.modifyDMG(CMD, frameTime, DMG)
+            })
+        }
+        modifyDamage(DMG: DamageModel.Damage<Control>, frameTime: number, CMD: BuffModel.ModifyCommand) {
+            this.modifyDMG(DMG, frameTime, CMD, this.BaseBuff)
+            if (this.isNow) {
+                this.modifyDMG(DMG, frameTime, CMD, this.team.BuffNow)
+            }
+        }
+        pushDamage(DMG: DamageModel.Damage<Control>, frameTime: number) {
+            this.modifyDMG(DMG, frameTime, "BEDMG", this.AllBuff)
+            console.log(DMG.Last);
+            
         }
         character: Part<CharacterModel.Character, SkillModel.CharacterSkillControl<Control>>
         weapon: Part<WeaponModel.Weapon, SkillModel.EquipSkill<Control>>
         artifact: Part<ArtifactModel.ArtifactControl, SkillModel.EquipSkill<Control>>
         team: TeamModel.Team = new TeamModel.Team()
-        static loadData(data: ArtifactData | WeaponData | CharacterRoleData) {
-            switch (data.type) {
-                case "character":
-                    Control.CharacterData[Symbol.for(data.character.name)] = data.character
-                    Control.CharacterSkillData[Symbol.for(data.character.name)] = data.skill
-                    break;
-                case "weapon":
-                    Control.WeaponData[Symbol.for(data.weapon.name)] = data.weapon
-                    Control.SkillData[Symbol.for(data.weapon.name)] = data.skill
-                    break;
-                case "artifact":
-                    Control.ArtifactSetData[Symbol.for(data.artifactSet.name)] = data.artifactSet
-                    Control.SkillData[Symbol.for(data.artifactSet.name)] = data.skill
-                    break;
+        static loadData(data:LoadDataPart[]|LoadDataPart) {
+            if(data instanceof Array){
+                data.map(item=>{
+                    Control.loadData(item)
+                })                
+            }else{
+                switch (data.type) {
+                    case "character":
+                        Control.CharacterData[Symbol.for(data.character.name)] = data.character
+                        Control.CharacterSkillData[Symbol.for(data.character.name)] = data.skill
+                        break;
+                    case "weapon":
+                        Control.WeaponData[Symbol.for(data.weapon.name)] = data.weapon
+                        Control.SkillData[Symbol.for(data.weapon.name)] = data.skill
+                        break;
+                    case "artifact":
+                        Control.ArtifactSetData[Symbol.for(data.artifactSet.name)] = data.artifactSet
+                        Control.SkillData[Symbol.for(data.artifactSet.name)] = data.skill
+                        break;
+                }
             }
+            
         }
         get Last() {
             const base = new Atom.ObjectBase()
-            base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps([...this.getBuffArr("object"),...this.team.Buffbase]))
+            base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps(this.BaseBuff))
 
             return base
         }
-        getBuffProps(buffArr:BuffModel.Buff[]){
+        private getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
             const base = new Atom.ObjectBase()
             buffArr.map(item=>{
                 base.add(item.target)
@@ -104,7 +141,7 @@ export namespace ControlModel {
                     core: new CharacterModel.Character(characterData),
                     buff: new BuffModel.Control(),
                     skill: new SkillModel.CharacterSkillControl(characterSkill)
-                }
+                }                
                 this.team.append(this)
             } else {
                 throw new Error("找不到角色")
@@ -146,7 +183,7 @@ export namespace ControlModel {
          * @param part buff归属
          * @param buff buff实例
          */
-        pushBuff(part: PartName, buff: BuffModel.Buff) {
+        pushBuff(part: PartName, buff: BuffModel.Buff<Control>) {
             switch (part) {
                 case "artifact":
                     this.artifact.buff.pushBuff(buff)
@@ -163,30 +200,42 @@ export namespace ControlModel {
             }
         }
         Q(to: Control, frameTime: number) {
+            this.refreshMSG(frameTime)
             this.character.skill.Burst(this, to, frameTime, 1)
         }
         E(to: Control, frameTime: number) {
+            this.refreshMSG(frameTime)
+
             this.character.skill.Burst(this, to, frameTime, 1)
         }
         A(to: Control, frameTime: number) {
-            this.character.skill.Burst(this, to, frameTime, 1)
+            this.refreshMSG(frameTime)
+            this.character.skill.Atk(this, to, frameTime, 1)
         }
-        setArtifact(data: ArtifactModel.DataType){
+        setArtifact(data: ArtifactModel.DataType) {
             this.artifact.core.setArtifact(data)
             return this
+        }
+        private refreshMSG(frameTime: number) {
+            this.team.refresh(frameTime)
+        }
+        refreshAll(frameTime: number) {
+            this.character.buff.nextFrame(frameTime)
+            this.weapon.buff.nextFrame(frameTime)
+            this.artifact.buff.nextFrame(frameTime)
         }
         /**
          * 加载已经存入缓存区的武器
          * @param name 武器名
          * @returns 
          */
-        loadWeapon(name:string){
+        loadWeapon(name: string) {
             const key = Symbol.for(name)
-            const weaponData =   Control.WeaponData[key]
-            const weaponSkill =   Control.SkillData[key]
-            if(weaponData&&weaponSkill){
-                this.weapon.core=new WeaponModel.Weapon(weaponData)
-                this.weapon.skill=new SkillModel.EquipSkill()
+            const weaponData = Control.WeaponData[key]
+            const weaponSkill = Control.SkillData[key]
+            if (weaponData && weaponSkill) {
+                this.weapon.core = new WeaponModel.Weapon(weaponData)
+                this.weapon.skill = new SkillModel.EquipSkill()
             }
             return this
         }
