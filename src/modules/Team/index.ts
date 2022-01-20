@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:16:56
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 18:12:50
+ * @LastEditTime: 2022-01-20 14:09:49
  * @FilePath: \noelle-core-v2\src\modules\Team\index.ts
  */
 
@@ -41,21 +41,26 @@ export namespace TeamModel {
         inTeam(key: symbol) {
             return !!this._characterList[key]
         }
+        refresh(frame: number) {
+            Object.getOwnPropertySymbols(this._characterList).map(item => {
+                this._characterList[item].refreshAll(frame)
+            })
+        }
         /**
          * 全局buff数组
          */
         get Buffbase() {
-            const arr: BuffModel.Buff[] = [this.ElementBuff]
+            const arr: BuffModel.Buff<ControlModel.Control>[] = [this.ElementBuff]
             Object.getOwnPropertySymbols(this._characterList).map(item => {
-              arr.push(...this._characterList[item].getBuffArr("teamBase"))  
+                arr.push(...this._characterList[item].getBuffArr("teamBase"))
             })
             return arr
         }
         /**
          * 驻场buff数组
          */
-        get BuffNow(){
-            const arr: BuffModel.Buff[] = []
+        get BuffNow() {
+            const arr: BuffModel.Buff<ControlModel.Control>[] = []
             Object.getOwnPropertySymbols(this._characterList).map(item => {
                 this._characterList[item].getBuffArr("teamBase")
             })
