@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:39:11
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 16:55:18
+ * @LastEditTime: 2022-01-20 14:07:43
  * @FilePath: \noelle-core-v2\src\modules\Buff\index.ts
  */
 import { Atom } from "../Atom"
@@ -9,19 +9,19 @@ import { DamageModel } from "../Damage"
 import { Molecule } from "../Molecule"
 
 export namespace BuffModel {
-    export type ModifyCommand = ""
+    export type ModifyCommand = "BEDMG"|"A"|"Q"|"E"|"Shift"|"Jump"
     export type Type = "teamBase" | "teamNow" | "object"
-    type BuffObject = {
-        [key: symbol]: Buff
+    type BuffObject<Target> = {
+        [key: symbol]: Buff<Target> 
     }
     type OutTime={
         start:number,
         end:number,
     } | "never"
-    export class Control {
-        teamBase: BuffObject = {}
-        teamNow: BuffObject = {}
-        object: BuffObject = {}
+    export class Control<Target>  {
+        teamBase: BuffObject<Target>  = {}
+        teamNow: BuffObject<Target>  = {}
+        object: BuffObject<Target>  = {}
         constructor() {
 
         }
@@ -30,21 +30,21 @@ export namespace BuffModel {
             this.partNext(this.teamBase, frame)
             this.partNext(this.teamNow, frame)
         }
-        private partNext(part: BuffObject, frame: number) {
+        private partNext(part: BuffObject<Target> , frame: number) {
             Object.getOwnPropertySymbols(part).map(item => {
                 if (!part[item].nextFrame(frame)) {
                     delete part[item]
                 }
             })
         }
-        private partBuffList(part: BuffObject) {
-            const base:Buff[] = []
+        private partBuffList(part: BuffObject<Target> ) {
+            const base:Buff<Target> [] = []
             Object.getOwnPropertySymbols(part).map(item => {
                 base.push(part[item])
             })
             return base
         }
-        pushBuff(buff: Buff) {
+        pushBuff(buff: Buff<Target> ) {
             this[buff.type][buff.ID] = buff
 
         }
@@ -67,7 +67,7 @@ export namespace BuffModel {
         }
 
     }
-    export class Buff {
+    export class Buff<Target> {
         ID: symbol = Symbol()
         /**标签 */
         tag: string = "未知来源"
@@ -85,7 +85,7 @@ export namespace BuffModel {
          * @param DMG 伤害实例
          * @returns 
          */
-        modifyDMG(cmd: ModifyCommand, DMG?: DamageModel.Damage) {
+        modifyDMG(cmd: ModifyCommand,frameTime:number, DMG?: DamageModel.Damage<Target>) {
             return DMG
         }
         /**
@@ -110,7 +110,7 @@ export namespace BuffModel {
             }
 
         }
-        constructor(tag: string, type: BuffModel.Type, outTime:OutTime, init = (buff: Buff) => { }) {
+        constructor(tag: string, type: BuffModel.Type, outTime:OutTime, init = (buff: Buff<Target> ) => { }) {
             this.ID = Symbol.for(tag)
             this.tag = tag
             this.type = type
