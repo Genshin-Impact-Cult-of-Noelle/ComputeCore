@@ -1,13 +1,13 @@
-import { ControlModel } from "../Control"
-
 /*
  * @Date: 2022-01-19 14:03:32
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 14:28:39
+ * @LastEditTime: 2022-01-19 17:40:12
  * @FilePath: \noelle-core-v2\src\modules\Action\index.ts
  */
+import { ControlModel } from "../Control"
+
 export namespace ActionModel {
-    type ActionCMD = "普通攻击" | "元素战技" | "元素爆发" | "闪避" | "切换"
+    type ActionCMD = "普通攻击" | "元素战技" | "元素爆发" | "闪避" | "切换" | "等待"
     type ActionItem = {
         CMD: ActionCMD,
         data: symbol
@@ -25,16 +25,16 @@ export namespace ActionModel {
             }
             this.toDo.push(action)
         }
-        private check(target:ControlModel.Control) {
-            if(this.toDo.filter(item => item.CMD === "切换").map(item=>{
-               return target.team.inTeam(item.data)
-            }).some(item=>!item))return false
+        private check(target: ControlModel.Control) {
+            if (this.toDo.filter(item => item.CMD === "切换").map(item => {
+                return target.team.inTeam(item.data)
+            }).some(item => !item)) return false
             return true
         }
-        play(target:ControlModel.Control) {
-            if(this.check(target)){
+        play(target: ControlModel.Control) {
+            if (this.check(target)) {
                 return false
-            }else{
+            } else {
 
             }
         }
