@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:36:44
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 14:47:00
+ * @LastEditTime: 2022-01-20 15:21:37
  * @FilePath: \noelle-core-v2\src\modules\Atom\index.ts
  */
 import { Common } from "../../common/typeTool";
@@ -65,6 +65,13 @@ export namespace Atom {
         ElementDMG | "critRate" | "critDamage"
 
     type ElementPropNameKey = "DEF" | "DMG"
+    const ElemnetPropName: {
+        DEF: ElementDEF[],
+        DMG: ElementDMG[]
+    } = {
+        DEF: ["elementDEFPyro", "elementDEFHydro", "elementDEFCryo", "elementDEFElectro", "elementDEFGeo", "elementDEFAnemo", "elementDEFDendro", "elementDEFPhysical"],
+        DMG: ["elementDMGPyro", "elementDMGHydro", "elementDMGCryo", "elementDMGElectro", "elementDMGGeo", "elementDMGAnemo", "elementDMGDendro", "elementDMGPhysical"],
+    }
     export class ObjectProps {
         /**攻击力 */
         atk: Prop = new Prop()
@@ -118,26 +125,40 @@ export namespace Atom {
             const [ThisAtom, OtherAtom] = [this[key], Other[key]]
             ThisAtom.add(OtherAtom)
         }
+        clean() {
+            for (const key of Object.keys(this)) {
+                if (this[key] instanceof Prop) {
+                    this[key] = new Prop()
+                }
+            }
+            return this
+        }
         add(other: ObjectBase) {
-            for (const key of Object.keys(this)) {                
-                if (other[key] instanceof Atom.Prop) {
+            for (const key of Object.keys(this)) {
+                if (other[key] instanceof Prop) {
                     this.addKey(key as keyof ObjectProps, other)
                 }
             }
             return this
         }
-        getElementDEF(key: ElementDEF) {
-
-            return this[key]
+        getElementDEF(key: ElementType) {
+            return this["elementDEF" + key as ElementDEF]
         }
-        getElementDMG(key: ElementDMG) {
-            return this[key]
+        getElementDMG(key: ElementType) {
+            return this["elementDMG" + key as ElementDMG]
         }
-        setAllElementProp(type: ElementPropNameKey, val: Prop) {
+        setAllElementProp(type: ElementPropNameKey, label: string, val: number) {
+            const prop = new Prop().push(label, val, "base")
+            ElemnetPropName[type].map(item => {
+                this[item] = prop
+            })
             return this
         }
-        addAllElementProp(type: ElementPropNameKey, val: Prop) {
-
+        addAllElementProp(type: ElementPropNameKey, label: string, val: number) {
+            const prop = new Prop().push(label, val, "base")
+            ElemnetPropName[type].map(item => {
+                this[item].add(prop)
+            })
             return this
         }
     }
