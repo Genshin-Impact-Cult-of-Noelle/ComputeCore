@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:40:29
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 16:58:56
+ * @LastEditTime: 2022-01-20 16:02:55
  * @FilePath: \noelle-core-v2\src\modules\Character\index.ts
  */
 
@@ -31,6 +31,7 @@ export namespace CharacterModel {
         gender: Gender
         /**武器类型 */
         weaponType: WeaponModel.Type
+        init?:(character:Character)=>void
     } & Molecule.BaseObjectdata
     export class Character extends Molecule.CharacterBase {
         /**神之眼属性 */
@@ -60,6 +61,11 @@ export namespace CharacterModel {
             this.star
             this.elementType = data.elementType
             this.weaponType = data.weaponType
+            this.critRate.push("角色类基础",0.05,"base")
+            this.critDamage.push("角色类基础",0.5,"base")
+            if(data.init){
+                data.init(this)
+            }
         }
         /**
          * 设置技能等级
