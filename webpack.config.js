@@ -4,12 +4,12 @@
  * @Autor: Do not edit
  * @Date: 2021-11-05 14:41:28
  * @LastEditors: YueAo7
- * @LastEditTime: 2021-11-05 17:18:41
+ * @LastEditTime: 2022-01-21 16:34:15
  */
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
-    entry: './src/Core.ts',
+    entry: './src/index.ts',
     mode: 'production',
     module: {
         rules: [

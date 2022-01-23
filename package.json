@@ -1,6 +1,6 @@
 {
   "name": "noelle-core",
-  "version": "0.3.5",
+  "version": "0.4.3-beta",
   "description": "诺艾尔神教-九章机-内核",
   "main": "main/index.js",
   "types": "main/types/index.d.ts",
@@ -21,10 +21,10 @@
     "url": "https://gitee.com/U1405/noelleComputeCore"
   },
   "scripts": {
-    "test": "npm run build && node test/index.js",
+    "test": "npm run build && node main",
     "build": "webpack && tsc --declarationDir ./main/types",
     "update": "npm run build  && npm publish",
-    "ftest": "node test"
+    "ftest": "node main"
   },
   "author": "yueao7",
   "license": "Apache-2.0",
