@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 19:22:13
+ * @LastEditTime: 2022-01-24 19:25:24
  * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
  */
 
@@ -50,7 +50,7 @@ export namespace ControlModel {
         private static ArtifactSetData: DataBase<ArtifactModel.ArtifactSetData> = {}
         private static SkillData: DataBase<SkillModel.SkillData<Control>> = {}
         private static CharacterSkillData: DataBase<SkillModel.CharacterSkillData<Control>> = {}
-        DMGHistroy: any[] = []
+        DMGHistroy: DamageModel.DMGResult[] = []
         get ID() {
             return this.character.core.ID
         }

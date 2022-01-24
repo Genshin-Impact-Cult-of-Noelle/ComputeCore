@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 18:23:27
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 17:21:39
+ * @LastEditTime: 2022-01-24 19:24:14
  * @FilePath: \noelle-core-v2\src\modules\Damage\index.ts
  */
 
@@ -127,7 +127,7 @@ export namespace DamageModel {
             }
 
             this.compute.map(item => {
-                result.computeStr += `倍率${item.prop || "" + (item.rate * 100).toFixed(2)}% `
+                result.computeStr += `倍率W${(item.prop || "") + (item.rate * 100).toFixed(2)}% `
                 result.min += item.rate * CPURateRate * (item.prop ? CPULastRole[item.prop].Last : 1)
             })
             if (this.DMGExtra.length) {
@@ -161,7 +161,7 @@ export namespace DamageModel {
             })
             return computeBase
         }
-        get Last() {
+        get Last(): DMGResult {
             const data = ObjectThin(JSON.parse(JSON.stringify(this)))
                 , result = this.result
             return {
@@ -170,5 +170,9 @@ export namespace DamageModel {
             }
         }
 
+    }
+    export type DMGResult = {
+        data: Object,
+        result: DamageResult
     }
 }
