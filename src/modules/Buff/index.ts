@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:39:11
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 14:07:43
+ * @LastEditTime: 2022-01-24 15:05:56
  * @FilePath: \noelle-core-v2\src\modules\Buff\index.ts
  */
 import { Atom } from "../Atom"
@@ -9,19 +9,19 @@ import { DamageModel } from "../Damage"
 import { Molecule } from "../Molecule"
 
 export namespace BuffModel {
-    export type ModifyCommand = "BEDMG"|"A"|"Q"|"E"|"Shift"|"Jump"
+    export type ModifyCommand = "BEDMG" | "A" | "Q" | "E" | "Shift" | "Jump"
     export type Type = "teamBase" | "teamNow" | "object"
     type BuffObject<Target> = {
-        [key: symbol]: Buff<Target> 
+        [key: symbol]: Buff<Target>
     }
-    type OutTime={
-        start:number,
-        end:number,
+    type OutTime = {
+        start: number,
+        end: number,
     } | "never"
     export class Control<Target>  {
-        teamBase: BuffObject<Target>  = {}
-        teamNow: BuffObject<Target>  = {}
-        object: BuffObject<Target>  = {}
+        private teamBase: BuffObject<Target> = {}
+        private teamNow: BuffObject<Target> = {}
+        private object: BuffObject<Target> = {}
         constructor() {
 
         }
@@ -29,32 +29,37 @@ export namespace BuffModel {
             this.partNext(this.object, frame)
             this.partNext(this.teamBase, frame)
             this.partNext(this.teamNow, frame)
-        }
-        private partNext(part: BuffObject<Target> , frame: number) {
+        }        
+        clean() {
+            this.teamBase = {}
+            this.teamBase = {}
+            this.object = {}
+        }        
+        private partNext(part: BuffObject<Target>, frame: number) {
             Object.getOwnPropertySymbols(part).map(item => {
                 if (!part[item].nextFrame(frame)) {
                     delete part[item]
                 }
             })
         }
-        private partBuffList(part: BuffObject<Target> ) {
-            const base:Buff<Target> [] = []
+        private partBuffList(part: BuffObject<Target>) {
+            const base: Buff<Target>[] = []
             Object.getOwnPropertySymbols(part).map(item => {
                 base.push(part[item])
             })
             return base
         }
-        pushBuff(buff: Buff<Target> ) {
+        pushBuff(buff: Buff<Target>) {
             this[buff.type][buff.ID] = buff
 
         }
         findBuff(tag: string) {
             const ID = Symbol.for(tag)
-            const [objectBuff,teamBaseBuff,teamNowBuff] = [this.object[ID],this.teamBase[ID],this.object[ID]]
+            const [objectBuff, teamBaseBuff, teamNowBuff] = [this.object[ID], this.teamBase[ID], this.object[ID]]
             return {
-                objectBuff,teamBaseBuff,teamNowBuff
+                objectBuff, teamBaseBuff, teamNowBuff
             }
-            
+
         }
         get Object() {
             return this.partBuffList(this.object)
@@ -62,7 +67,7 @@ export namespace BuffModel {
         get Now() {
             return this.partBuffList(this.teamNow)
         }
-        get Team(){
+        get Team() {
             return this.partBuffList(this.teamBase)
         }
 
@@ -85,7 +90,7 @@ export namespace BuffModel {
          * @param DMG 伤害实例
          * @returns 
          */
-        modifyDMG(cmd: ModifyCommand,frameTime:number, DMG?: DamageModel.Damage<Target>) {
+        modifyDMG(cmd: ModifyCommand, frameTime: number, DMG?: DamageModel.Damage<Target>) {
             return DMG
         }
         /**
@@ -110,18 +115,18 @@ export namespace BuffModel {
             }
 
         }
-        constructor(tag: string, type: BuffModel.Type, outTime:OutTime, init = (buff: Buff<Target> ) => { }) {
+        constructor(tag: string, type: BuffModel.Type, outTime: OutTime, init = (buff: Buff<Target>) => { }) {
             this.ID = Symbol.for(tag)
             this.tag = tag
             this.type = type
-            if(outTime==="never"){
+            if (outTime === "never") {
                 this.StartFrame = 0
                 this.DeadTime = -1
-            }else{
+            } else {
                 this.StartFrame = outTime.start
-                this.DeadTime =  outTime.end
+                this.DeadTime = outTime.end
             }
-            
+
             init(this)
         }
     }
