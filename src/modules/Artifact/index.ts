@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:12:35
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 18:02:37
+ * @LastEditTime: 2022-01-24 14:59:15
  * @FilePath: \noelle-core-v2\src\modules\Artifact\index.ts
  */
 
@@ -10,7 +10,7 @@ import { Atom } from "../Atom"
 import { SkillModel } from "../Skill"
 
 export namespace ArtifactModel {
-    export type SetDataType<T>=SkillModel.SkillData<T>
+    export type SetDataType<T> = SkillModel.SkillData<T>
     type Type = "生之花" | "死之羽" | "时之沙" | "空之杯" | "理之冠"
     type BaseData = {
         type: Type,
@@ -27,7 +27,6 @@ export namespace ArtifactModel {
     type ArtifactData = {
         data: Atom.ObjectBase
     } & BaseData
-    const createKeyArray = ["atk", "def", "health"]
     function createObjectBase(data: DataType) {
         const base = new Atom.ObjectBase()
         for (const iterator of [data.main, data.other]) {
@@ -66,6 +65,7 @@ export namespace ArtifactModel {
         return base
 
     }
+    
     export class Artifact implements ArtifactData {
         type: Type;
         set: string = "";
@@ -81,6 +81,9 @@ export namespace ArtifactModel {
     type ArtifactObj = {
         [key in Type]?: Artifact
     }
+    export type ArtifactSetData = {
+        name:string,        
+    }
     export class ArtifactControl {
         artifactObj: ArtifactObj = {}
         constructor() {
@@ -92,6 +95,19 @@ export namespace ArtifactModel {
                 data: createObjectBase(data)
             })
             this.artifactObj[data.type] = artifact
+        }
+        get SetCount() {
+            const result: {
+                [key: string]: number
+            } = {}
+            Object.keys(this.artifactObj).map(item => {
+                const artifact = this.artifactObj[item]
+                if (artifact instanceof Artifact) {
+                    result[artifact.set] || (result[artifact.set] = 0)
+                    result[artifact.set]++
+                }
+            })
+            return result
         }
         get Last() {
             const computeBase = new Atom.ObjectBase()
