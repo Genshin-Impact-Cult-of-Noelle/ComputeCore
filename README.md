@@ -1,13 +1,13 @@
 <!--
  * @Date: 2022-01-19 09:22:06
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 11:31:17
+ * @LastEditTime: 2022-01-24 14:54:20
  * @FilePath: \noelle-core-v2\README.md
 -->
 # noelleCore
-![![诺艾尔神教](https://www.noelle.cool/)](https://www.noelle.cool/favicon.ico)
-
+![![诺艾尔神教](https://www.noelle.cool/favicon.ico)](https://www.noelle.cool/)
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
+![![诺艾尔神教git](https://img.shields.io/badge/-%E8%AF%BA%E8%89%BE%E5%B0%94%E7%A5%9E%E6%95%99-orange)](https://github.com/Genshin-Impact-Cult-of-Noelle)
 ### 介绍
 noelleCore,适用于原神计算,诺艾尔神教 构造 计算核心。
 通过构造自定义函数来完成原神中的技能机制
