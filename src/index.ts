@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-16 09:18:52
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-21 16:42:22
+ * @LastEditTime: 2022-01-24 15:18:45
  * @FilePath: \noelle-core-v2\src\index.ts
  */
 import { Atom } from "./modules/Atom"
@@ -9,7 +9,7 @@ import { BuffModel } from "./modules/Buff"
 import { ControlModel } from "./modules/Control"
 import { DamageModel } from "./modules/Damage"
 import { SkillModel } from "./modules/Skill"
-
+import * as Enum from "./enum"
 export namespace Types {
     export type Character = ControlModel.CharacterRoleData
     export type Skill = SkillModel.SkillData<ControlModel.Control>
@@ -52,5 +52,6 @@ export namespace Noelle {
     export const Class = Classes
     export const Tool = Tools
     export const load = ControlModel.Control.loadData
+    export const ConstData = Enum
 }
 export default Noelle
