@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 15:00:46
+ * @LastEditTime: 2022-01-24 19:22:13
  * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
  */
 
@@ -45,11 +45,12 @@ export namespace ControlModel {
         skill: SkillModel.SkillData<Control>
     } & Doc
     export class Control {
-        private static WeaponData: DataBase<WeaponModel.DataType> = {}
-        private static CharacterData: DataBase<CharacterModel.DataType> = {}
+        private  static WeaponData: DataBase<WeaponModel.DataType> = {}
+        private  static CharacterData: DataBase<CharacterModel.DataType> = {}
         private static ArtifactSetData: DataBase<ArtifactModel.ArtifactSetData> = {}
         private static SkillData: DataBase<SkillModel.SkillData<Control>> = {}
         private static CharacterSkillData: DataBase<SkillModel.CharacterSkillData<Control>> = {}
+        DMGHistroy: any[] = []
         get ID() {
             return this.character.core.ID
         }
@@ -81,7 +82,7 @@ export namespace ControlModel {
         }
         pushDamage(DMG: DamageModel.Damage<Control>, frameTime: number) {
             this.modifyDMG(DMG, frameTime, "BEDMG", this.AllBuff)
-            console.log(DMG.Last);
+            this.DMGHistroy.push(DMG.Last)
 
         }
         character: Part<CharacterModel.Character, SkillModel.CharacterSkillControl<Control>>
@@ -93,7 +94,7 @@ export namespace ControlModel {
                 data.map(item => {
                     Control.loadData(item)
                 })
-            } else {
+            } else if (data) {
                 switch (data.type) {
                     case "character":
                         Control.CharacterData[Symbol.for(data.character.name)] = data.character
@@ -114,17 +115,16 @@ export namespace ControlModel {
         get Last() {
             const base = new Atom.ObjectBase()
             base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps(this.BaseBuff))
-
             return base
         }
-        private getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
+        private  getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
             const base = new Atom.ObjectBase()
             buffArr.map(item => {
                 base.add(item.target)
             })
             return base
         }
-        getBuffArr(type: BuffModel.Type) {
+          getBuffArr(type: BuffModel.Type) {
             switch (type) {
                 case "object":
                     return [...this.character.buff.Object, ...this.weapon.buff.Object, ...this.artifact.buff.Object]
@@ -250,6 +250,7 @@ export namespace ControlModel {
             const key = Symbol.for(name)
             const weaponData = Control.WeaponData[key]
             const weaponSkill = Control.SkillData[key]
+
             if (weaponData && weaponSkill) {
                 const { buff, core, skill } = this.weapon
                 core.load(weaponData)
