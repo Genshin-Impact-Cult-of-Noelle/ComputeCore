@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:38:54
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-18 11:37:55
+ * @LastEditTime: 2022-01-24 14:06:03
  * @FilePath: \noelle-core-v2\src\modules\Weapon\index.ts
  */
 
@@ -27,6 +27,9 @@ export namespace WeaponModel {
         extarStar: ExtraStar = 1
         constructor(data: DataType) {
             super(data)
+            this.weaponType = data.weaponType
+        }
+        load(data: DataType) {
             this.weaponType = data.weaponType
         }
     }
