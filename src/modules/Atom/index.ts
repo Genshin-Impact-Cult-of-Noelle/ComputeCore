@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:36:44
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 15:21:37
+ * @LastEditTime: 2022-01-24 19:16:38
  * @FilePath: \noelle-core-v2\src\modules\Atom\index.ts
  */
 import { Common } from "../../common/typeTool";
@@ -72,6 +72,10 @@ export namespace Atom {
         DEF: ["elementDEFPyro", "elementDEFHydro", "elementDEFCryo", "elementDEFElectro", "elementDEFGeo", "elementDEFAnemo", "elementDEFDendro", "elementDEFPhysical"],
         DMG: ["elementDMGPyro", "elementDMGHydro", "elementDMGCryo", "elementDMGElectro", "elementDMGGeo", "elementDMGAnemo", "elementDMGDendro", "elementDMGPhysical"],
     }
+    const valKey = [
+        "atk", "def", "health", "elementMaster", "elementMaster", "elementChargeRate", "elementChargeRate", "critRate", "critDamage", "cureRate", "cureRateBefor",
+        ...ElemnetPropName.DEF,...ElemnetPropName.DMG
+    ]
     export class ObjectProps {
         /**攻击力 */
         atk: Prop = new Prop()
@@ -121,10 +125,6 @@ export namespace Atom {
         constructor() {
             super()
         }
-        private addKey(key: Common.Keys<ObjectProps>, Other: ObjectBase) {
-            const [ThisAtom, OtherAtom] = [this[key], Other[key]]
-            ThisAtom.add(OtherAtom)
-        }
         clean() {
             for (const key of Object.keys(this)) {
                 if (this[key] instanceof Prop) {
@@ -134,10 +134,8 @@ export namespace Atom {
             return this
         }
         add(other: ObjectBase) {
-            for (const key of Object.keys(this)) {
-                if (other[key] instanceof Prop) {
-                    this.addKey(key as keyof ObjectProps, other)
-                }
+            for (const key of valKey) {
+                this[key].add(other[key])
             }
             return this
         }
