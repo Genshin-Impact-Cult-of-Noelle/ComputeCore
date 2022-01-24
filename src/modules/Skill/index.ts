@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 18:24:58
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 14:52:20
+ * @LastEditTime: 2022-01-24 14:44:00
  * @FilePath: \noelle-core-v2\src\modules\Skill\index.ts
  */
 import { Molecule } from "../Molecule"
@@ -93,23 +93,16 @@ export namespace SkillModel {
         skillList: EquipSkillObject<T> = {}
         constructor() {
         }
-        clear() {
+        clean() {
             this.skillList = {}
         }
         push(skill: Skill<T>) {
             this.skillList[skill.ID] = skill
         }
-        getBuff(target: T) {
-            const SkillResult = Object.getOwnPropertySymbols(this.skillList).map(item => {
-                return this.skillList[item].fnc(target, target, 0)
+        getBuff(target: T,extra:number) {
+            Object.getOwnPropertySymbols(this.skillList).map(item => {
+                return this.skillList[item].fnc(target, target,0, extra)
             })
-            const result: BuffModel.Buff<T>[] = []
-            SkillResult.map(item => {
-                if (item.result instanceof BuffModel.Buff) {
-                    result.push(item.result)
-                }
-            })
-            return result
         }
     }
 }
