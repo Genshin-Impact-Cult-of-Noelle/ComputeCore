@@ -1,17 +1,11 @@
 /*
  * @Date: 2022-01-20 10:04:48
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 14:53:45
+ * @LastEditTime: 2022-01-21 16:42:04
  * @FilePath: \noelle-core-v2\src\default\诺艾尔.ts
  */
-/*
- * @Date: 2022-01-18 17:53:28
- * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 10:01:45
- * @FilePath: \noelle-core-v2\src\testDB.ts
- */
 
-import Noelle, { Tools, Types, Classes } from "../Core"
+import Noelle, { Tools, Types, Classes } from "../"
 import { WeaponExtarArr } from "../enum"
 
 const skillLabel = "大扫除"
@@ -19,8 +13,8 @@ const Burst: Noelle.Type.Skill = {
     name: skillLabel,
     init: (s) => {
         let CD = 0
-        const defToAtk = [0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.60, 0.64, 0.68, 0.72, 0.76, 0.8, 0.85, 0.9, 0.95]        
-        s.fnc = (from, to, t, lv = 1)=>{
+        const defToAtk = [0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.60, 0.64, 0.68, 0.72, 0.76, 0.8, 0.85, 0.9, 0.95]
+        s.fnc = (from, to, t, lv = 1) => {
             if (CD > t) {
                 const sum = CD - t
                 console.warn("尚未冷却警告", skillLabel, "剩余时间", Math.floor(sum / 60), "秒", sum % 60, "帧")
@@ -94,10 +88,10 @@ const AttackName = "普通攻击·西风剑术·女仆"
 const Attack: Noelle.Type.Skill = {
     name: AttackName,
     init: (s) => {
-        s.fnc = function (from, to, t, lv = 1) {
+        s.fnc = (from, to, t, lv = 1) => {
             if (from.tag != to.tag) {
-                const DMG = new Noelle.Class.Damage(from, s, to, Tools.DMGRate(atkdata[atkCount], lv),"ATKNORMAL",from.character.core.nowBaseAtkElement)
-                from.modifyDamage(DMG, t, "A")                
+                const DMG = new Noelle.Class.Damage(from, s, to, Tools.DMGRate(atkdata[atkCount], lv), "ATKNORMAL", from.character.core.nowBaseAtkElement)
+                from.modifyDamage(DMG, t, "A")
                 to.pushDamage(DMG, t)
             }
             atkCount++
@@ -109,9 +103,18 @@ const Attack: Noelle.Type.Skill = {
                 }
             }
         }
-        
+
     }
 
+}
+const SkillName = "护心凯"
+const Skill: Noelle.Type.Skill = {
+    name: SkillName,
+    init(s) {
+        s.fnc = (from, to, time, lv = 1) => {
+            return {}
+        }
+    }
 }
 export const 诺艾尔: Noelle.Type.Character = {
     type: "character",
