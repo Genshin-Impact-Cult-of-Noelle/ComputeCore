@@ -1,6 +1,6 @@
 {
   "name": "noelle-core",
-  "version": "0.4.3-beta",
+  "version": "0.4.4-beta",
   "description": "诺艾尔神教-九章机-内核",
   "main": "main/index.js",
   "types": "main/types/index.d.ts",
@@ -24,6 +24,7 @@
     "test": "npm run build && node main",
     "build": "webpack && tsc --declarationDir ./main/types",
     "update": "npm run build  && npm publish",
+    "upbeta": "npm run build  && npm publish --tag=beta",
     "ftest": "node main"
   },
   "author": "yueao7",
