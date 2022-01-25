@@ -1,10 +1,12 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 19:25:24
+ * @LastEditTime: 2022-01-25 17:00:51
  * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
  */
 
+import { ObjectThin } from "../../common/function";
+import { Common } from "../../common/typeTool";
 import { ArtifactModel } from "../Artifact";
 import { Atom } from "../Atom";
 import { BuffModel } from "../Buff";
@@ -16,6 +18,42 @@ import { TeamModel } from "../Team";
 import { WeaponModel } from "../Weapon";
 
 export namespace ControlModel {
+    interface x{
+        [key:string]:number
+    }
+    let p:keyof x =0
+    type Level = Common.LinkStr<"", "", ["1", "20", "20+", "40", "40+", "50", "50+", "60", "60+", "70", "70+", "80", "80+", "90"]>
+    function limit(val: number, min: number, max: number) {
+        return Math.min(Math.max(val, min), max)
+    }
+    const LevelMap = {
+        "1": 0,
+        "20": 1,
+        "20+": 2,
+        "40": 3,
+        "40+": 4,
+        "50": 5,
+        "50+": 6,
+        "60": 7,
+        "60+": 8,
+        "70": 9,
+        "70+": 10,
+        "80": 11,
+        "80+": 12,
+        "90": 13
+    }
+    function formatLevel(level: Level) {
+        return LevelMap[level]
+    }
+    type LevelOpt = {
+        extra?: number,
+        level?: Level,
+    }
+    type SkillLevelOpt = {
+        Q?: number,
+        E?: number,
+        A?: number,
+    }
     type LoadDataPart = ArtifactData | CharacterRoleData | WeaponData
     type DataBase<T> = {
         [key: symbol]: T
@@ -45,8 +83,8 @@ export namespace ControlModel {
         skill: SkillModel.SkillData<Control>
     } & Doc
     export class Control {
-        private  static WeaponData: DataBase<WeaponModel.DataType> = {}
-        private  static CharacterData: DataBase<CharacterModel.DataType> = {}
+        private static WeaponData: DataBase<WeaponModel.DataType> = {}
+        private static CharacterData: DataBase<CharacterModel.DataType> = {}
         private static ArtifactSetData: DataBase<ArtifactModel.ArtifactSetData> = {}
         private static SkillData: DataBase<SkillModel.SkillData<Control>> = {}
         private static CharacterSkillData: DataBase<SkillModel.CharacterSkillData<Control>> = {}
@@ -82,7 +120,11 @@ export namespace ControlModel {
         }
         pushDamage(DMG: DamageModel.Damage<Control>, frameTime: number) {
             this.modifyDMG(DMG, frameTime, "BEDMG", this.AllBuff)
-            this.DMGHistroy.push(DMG.Last)
+            const res = DMG.Last
+            res.data = ObjectThin(res.data)
+            this.DMGHistroy.push(res)
+
+
 
         }
         character: Part<CharacterModel.Character, SkillModel.CharacterSkillControl<Control>>
@@ -117,14 +159,14 @@ export namespace ControlModel {
             base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps(this.BaseBuff))
             return base
         }
-        private  getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
+        private getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
             const base = new Atom.ObjectBase()
             buffArr.map(item => {
                 base.add(item.target)
             })
             return base
         }
-          getBuffArr(type: BuffModel.Type) {
+        getBuffArr(type: BuffModel.Type) {
             switch (type) {
                 case "object":
                     return [...this.character.buff.Object, ...this.weapon.buff.Object, ...this.artifact.buff.Object]
@@ -207,16 +249,16 @@ export namespace ControlModel {
         }
         Q(to: Control, frameTime: number) {
             this.refreshMSG(frameTime)
-            this.character.skill.Burst(this, to, frameTime, 1)
+            return this.character.skill.Burst(this, to, frameTime, 1)
         }
         E(to: Control, frameTime: number) {
             this.refreshMSG(frameTime)
 
-            this.character.skill.Burst(this, to, frameTime, 1)
+            return this.character.skill.Burst(this, to, frameTime, 1)
         }
         A(to: Control, frameTime: number) {
             this.refreshMSG(frameTime)
-            this.character.skill.Atk(this, to, frameTime, 1)
+            return this.character.skill.Atk(this, to, frameTime, 1)
         }
         setArtifact(data: ArtifactModel.DataType) {
             this.artifact.core.setArtifact(data)
@@ -246,7 +288,7 @@ export namespace ControlModel {
          * @param name 武器名
          * @returns 
          */
-        setWeapon(name: string) {
+        setWeapon(name: string, opt: LevelOpt) {
             const key = Symbol.for(name)
             const weaponData = Control.WeaponData[key]
             const weaponSkill = Control.SkillData[key]
@@ -257,9 +299,33 @@ export namespace ControlModel {
                 buff.clean()
                 skill.clean()
                 skill.push(new SkillModel.Skill(weaponSkill))
-                skill.getBuff(this, core.extarStar)
+                skill.getBuff(this, core.extraStar)
             }
             return this
         }
+         setWeaponOpt(opt: LevelOpt) {
+            const { extra, level } = opt
+            const weapon = this.weapon.core
+            extra && (weapon.extraStar = limit(extra, 1, 5))
+            level && (weapon.level = formatLevel(level))
+            return this
+        }
+         setCharacterOpt(opt: LevelOpt) {
+            const { extra, level } = opt
+            const character = this.character.core
+            extra && (character.extraStar = limit(extra, 1, 6))
+            level && (character.level = formatLevel(level))
+            return this
+
+        }
+          setCharacterSkill(opt: SkillLevelOpt) {
+            const {Q,E,A} = opt
+            const character = this.character.core
+            Q&&(character.skillLevel.q=Q)
+            E&&(character.skillLevel.e=E)
+            A&&(character.skillLevel.a=A)
+            return this
+
+         }
     }
 }

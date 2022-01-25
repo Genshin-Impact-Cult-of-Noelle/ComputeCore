@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:38:54
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 14:06:03
+ * @LastEditTime: 2022-01-25 16:29:02
  * @FilePath: \noelle-core-v2\src\modules\Weapon\index.ts
  */
 
@@ -16,7 +16,6 @@ export namespace WeaponModel {
      * @param catalyst 法器
      */
     export type Type = "sword" | "claymore" | "polearm" | "bow" | "catalyst"
-    type ExtraStar = 1 | 2 | 3 | 4 | 5
     export type DataType = {
         weaponType: Type
     } & Molecule.BaseObjectdata
@@ -24,7 +23,7 @@ export namespace WeaponModel {
         /**武器类型 */
         weaponType: Type
         /**武器精炼等级 */
-        extarStar: ExtraStar = 1
+        extraStar: number = 1
         constructor(data: DataType) {
             super(data)
             this.weaponType = data.weaponType

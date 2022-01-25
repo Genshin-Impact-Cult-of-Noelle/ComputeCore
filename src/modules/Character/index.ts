@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-01-17 17:40:29
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 16:02:55
+ * @LastEditTime: 2022-01-25 16:24:07
  * @FilePath: \noelle-core-v2\src\modules\Character\index.ts
  */
 
@@ -10,17 +10,15 @@ import { Molecule } from "../Molecule"
 import { WeaponModel } from "../Weapon"
 
 export namespace CharacterModel {
-    type ExtraStar = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
     type Group = "Tivat" | "Abyss"
     type Gender = "boy" | "girl" | "unknown"
-    type SkillLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
     type SkillLevelObj = {
         /**普通攻击 */
-        a: SkillLevel,
+        a: number,
         /**元素战技 */
-        e: SkillLevel,
+        e: number,
         /**元素爆发 */
-        q: SkillLevel
+        q: number
     }
     export type DataType = {
         /**神之眼属性 */
@@ -31,7 +29,7 @@ export namespace CharacterModel {
         gender: Gender
         /**武器类型 */
         weaponType: WeaponModel.Type
-        init?:(character:Character)=>void
+        init?: (character: Character) => void
     } & Molecule.BaseObjectdata
     export class Character extends Molecule.CharacterBase {
         /**神之眼属性 */
@@ -41,7 +39,7 @@ export namespace CharacterModel {
         /**势力 */
         tag: Group = "Tivat"
         /**命座 */
-        extraStar: ExtraStar = 0
+        extraStar: number = 0
         /**性别 */
         gender: Gender = "unknown";
         /**武器附魔 */
@@ -61,9 +59,9 @@ export namespace CharacterModel {
             this.star
             this.elementType = data.elementType
             this.weaponType = data.weaponType
-            this.critRate.push("角色类基础",0.05,"base")
-            this.critDamage.push("角色类基础",0.5,"base")
-            if(data.init){
+            this.critRate.push("角色类基础", 0.05, "base")
+            this.critDamage.push("角色类基础", 0.5, "base")
+            if (data.init) {
                 data.init(this)
             }
         }
