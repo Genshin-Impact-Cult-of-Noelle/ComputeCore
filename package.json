@@ -1,6 +1,6 @@
 {
   "name": "noelle-core",
-  "version": "0.4.7-beta",
+  "version": "0.4.8-beta",
   "description": "诺艾尔神教-九章机-内核",
   "main": "main/index.js",
   "types": "main/types/index.d.ts",
