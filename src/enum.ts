@@ -4,7 +4,7 @@
  * @Autor: Do not edit
  * @Date: 2021-09-26 09:15:33
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-19 09:27:59
+ * @LastEditTime: 2022-01-25 16:30:48
  */
 
 export const LevelArr = [1, 20, 20, 40, 40, 50, 50, 60, 60, 70, 70, 80, 80, 90]
@@ -14,7 +14,7 @@ export const LevelArr = [1, 20, 20, 40, 40, 50, 50, 60, 60, 70, 70, 80, 80, 90]
  * @member E48 -> 1级时值为48
  * @member EP192 -> 1级时值为19.2%
  */
-export const WeaponExtarArr = {
+export const WeaponExtraArr = {
 
     S1M23: [23, 56, 68, 102, 113, 130, 141, 158, 169, 185, 185, 185, 185, 185],
     S2M33: [33, 80, 91, 139, 151, 174, 186, 209, 202, 243, 243, 243, 243, 243],
