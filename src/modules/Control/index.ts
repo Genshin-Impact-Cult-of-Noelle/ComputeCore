@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-01-18 10:09:50
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-25 17:00:51
- * @FilePath: \noelle-core-v2\src\modules\Control\index.ts
+ * @LastEditTime: 2022-01-26 18:29:35
+ * @FilePath: \ComputeCore\src\modules\Control\index.ts
  */
 
 import { ObjectThin } from "../../common/function";
@@ -18,10 +18,10 @@ import { TeamModel } from "../Team";
 import { WeaponModel } from "../Weapon";
 
 export namespace ControlModel {
-    interface x{
-        [key:string]:number
+    interface x {
+        [key: string]: number
     }
-    let p:keyof x =0
+    let p: keyof x = 0
     type Level = Common.LinkStr<"", "", ["1", "20", "20+", "40", "40+", "50", "50+", "60", "60+", "70", "70+", "80", "80+", "90"]>
     function limit(val: number, min: number, max: number) {
         return Math.min(Math.max(val, min), max)
@@ -98,7 +98,7 @@ export namespace ControlModel {
         get tag() {
             return this.character.core.tag
         }
-        private get isNow() {
+        get isNow() {
             return this.ID === this.team.nowCharacter
         }
         private get AllBuff() {
@@ -123,9 +123,6 @@ export namespace ControlModel {
             const res = DMG.Last
             res.data = ObjectThin(res.data)
             this.DMGHistroy.push(res)
-
-
-
         }
         character: Part<CharacterModel.Character, SkillModel.CharacterSkillControl<Control>>
         weapon: Part<WeaponModel.Weapon, SkillModel.EquipSkill<Control>>
@@ -156,7 +153,12 @@ export namespace ControlModel {
         }
         get Last() {
             const base = new Atom.ObjectBase()
-            base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last).add(this.getBuffProps(this.BaseBuff))
+            base.add(this.character.core.Last).add(this.weapon.core.Last).add(this.artifact.core.Last)
+            if (this.isNow) {
+                base.add(this.getBuffProps(this.AllBuff))
+            } else {
+                base.add(this.getBuffProps(this.BaseBuff))
+            }
             return base
         }
         private getBuffProps(buffArr: BuffModel.Buff<Control>[]) {
@@ -253,18 +255,18 @@ export namespace ControlModel {
         }
         E(to: Control, frameTime: number) {
             this.refreshMSG(frameTime)
-
-            return this.character.skill.Burst(this, to, frameTime, 1)
+            return this.character.skill.Skill(this, to, frameTime, 1)
         }
         A(to: Control, frameTime: number) {
             this.refreshMSG(frameTime)
             return this.character.skill.Atk(this, to, frameTime, 1)
         }
-        setArtifact(data: ArtifactModel.DataType) {
-            this.artifact.core.setArtifact(data)
-            const SetCount = this.artifact.core.SetCount
+        setArtifact(data?: ArtifactModel.DataType) {
             this.artifact.skill.clean()
             this.artifact.buff.clean()
+            if (data)
+                this.artifact.core.setArtifact(data)
+            const SetCount = this.artifact.core.SetCount
             Object.keys(SetCount).map(item => {
                 const SkillData = Control.SkillData[Symbol.for(item)]
                 if (SkillData) {
@@ -288,29 +290,34 @@ export namespace ControlModel {
          * @param name 武器名
          * @returns 
          */
-        setWeapon(name: string, opt: LevelOpt) {
-            const key = Symbol.for(name)
-            const weaponData = Control.WeaponData[key]
-            const weaponSkill = Control.SkillData[key]
+        setWeapon(name?: string, opt?: LevelOpt) {
+            const { buff, core, skill } = this.weapon
+            buff.clean()
+            skill.clean()
+            if (name) {
+                const key = Symbol.for(name)
+                const weaponData = Control.WeaponData[key]
+                const weaponSkill = Control.SkillData[key]               
 
-            if (weaponData && weaponSkill) {
-                const { buff, core, skill } = this.weapon
-                core.load(weaponData)
-                buff.clean()
-                skill.clean()
-                skill.push(new SkillModel.Skill(weaponSkill))
-                skill.getBuff(this, core.extraStar)
+                if (weaponData && weaponSkill) {
+                    core.load(weaponData)
+                    skill.push(new SkillModel.Skill(weaponSkill))
+                }
+                if (opt) {
+                    this.setWeaponOpt(opt)
+                }
             }
+            skill.getBuff(this, core.extraStar)
             return this
         }
-         setWeaponOpt(opt: LevelOpt) {
+        setWeaponOpt(opt: LevelOpt) {
             const { extra, level } = opt
             const weapon = this.weapon.core
             extra && (weapon.extraStar = limit(extra, 1, 5))
             level && (weapon.level = formatLevel(level))
             return this
         }
-         setCharacterOpt(opt: LevelOpt) {
+        setCharacterOpt(opt: LevelOpt) {
             const { extra, level } = opt
             const character = this.character.core
             extra && (character.extraStar = limit(extra, 1, 6))
@@ -318,14 +325,17 @@ export namespace ControlModel {
             return this
 
         }
-          setCharacterSkill(opt: SkillLevelOpt) {
-            const {Q,E,A} = opt
+        setCharacterSkill(opt: SkillLevelOpt) {
+            const { Q, E, A } = opt
             const character = this.character.core
-            Q&&(character.skillLevel.q=Q)
-            E&&(character.skillLevel.e=E)
-            A&&(character.skillLevel.a=A)
+            Q && (character.skillLevel.q = Q)
+            E && (character.skillLevel.e = E)
+            A && (character.skillLevel.a = A)
             return this
 
-         }
+        }
+        cleanAll() {
+            this.setWeapon().setArtifact().character.buff.clean()
+        }
     }
 }

@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-01-18 10:16:56
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-20 14:09:49
- * @FilePath: \noelle-core-v2\src\modules\Team\index.ts
+ * @LastEditTime: 2022-01-26 09:55:32
+ * @FilePath: \ComputeCore\src\modules\Team\index.ts
  */
 
 import { Atom } from "../Atom";
@@ -99,6 +99,11 @@ export namespace TeamModel {
                 buff.target["atk"].add(prop)
             }
             return buff
+        }
+        init(){
+            Object.getOwnPropertySymbols(this._characterList).map(item => {
+                this._characterList[item].cleanAll()
+            })
         }
     }
 }

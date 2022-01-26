@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-01-17 18:24:58
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-24 14:44:00
- * @FilePath: \noelle-core-v2\src\modules\Skill\index.ts
+ * @LastEditTime: 2022-01-26 11:25:25
+ * @FilePath: \ComputeCore\src\modules\Skill\index.ts
  */
 import { Molecule } from "../Molecule"
 import { CharacterModel } from "../Character"
@@ -14,8 +14,7 @@ export namespace SkillModel {
         row: {
             use: keyof Atom.ObjectProps | undefined,
             rate: number[]
-        }[],
-        delay: { must: number, last: number }
+        }[]
     }
     type SkillOutput = {
         delay?: {
@@ -78,6 +77,7 @@ export namespace SkillModel {
         AtkJumpHigh:ControlFnc<Target>=(from, target, frameTime, lv)=> {
         }
         Skill:ControlFnc<Target>=(from, target, frameTime, lv)=> {
+            return this._elementSkill.fnc(from, target, frameTime, lv)
         }
         SkillLong:ControlFnc<Target>=(from, target, frameTime, lv)=> {
         }

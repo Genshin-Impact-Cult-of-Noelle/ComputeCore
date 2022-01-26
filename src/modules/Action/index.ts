@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-01-19 14:03:32
  * @LastEditors: YueAo7
- * @LastEditTime: 2022-01-25 13:59:14
- * @FilePath: \noelle-core-v2\src\modules\Action\index.ts
+ * @LastEditTime: 2022-01-26 09:55:08
+ * @FilePath: \ComputeCore\src\modules\Action\index.ts
  */
 import { ControlModel } from "../Control"
 
@@ -53,6 +53,7 @@ export namespace ActionModel {
             if (!this.check(target)) {
                 return false
             } else {
+                target.team.init()
                 this.control=target
                 for (const iterator of this.toDo) {
                     this.frame++
